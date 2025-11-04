@@ -1097,6 +1097,7 @@ D:\Linh\Project\QND\Client\obj\Debug\net8.0\Client.dll
 D:\Linh\Project\QND\Client\obj\Debug\net8.0\refint\Client.dll
 D:\Linh\Project\QND\Client\obj\Debug\net8.0\Client.pdb
 D:\Linh\Project\QND\Client\obj\Debug\net8.0\ref\Client.dll
-D:\Linh\Project\QND\Client\obj\Debug\net8.0\compressed\kb90l4x90i-3gkxlwhsrw.gz
-D:\Linh\Project\QND\Client\obj\Debug\net8.0\compressed\nrce2f7bjz-htikwa9ttd.gz
-D:\Linh\Project\QND\Client\obj\Debug\net8.0\compressed\0kih5qk3hm-ktjbtaerht.gz
+D:\Linh\Project\QND\Client\obj\Debug\net8.0\Client.sourcelink.json
+D:\Linh\Project\QND\Client\obj\Debug\net8.0\compressed\kb90l4x90i-8my4m94quz.gz
+D:\Linh\Project\QND\Client\obj\Debug\net8.0\compressed\nrce2f7bjz-h8vhibik0i.gz
+D:\Linh\Project\QND\Client\obj\Debug\net8.0\compressed\0kih5qk3hm-5eellb9gkr.gz

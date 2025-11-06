@@ -1,0 +1,166 @@
+﻿@page "/order/{TableCode}"
+@inject NavigationManager NavManager
+
+<PageTitle>Đơn hàng - Bàn @TableCode</PageTitle>
+
+<div class="container mobile-first-design pb-5 mb-5">
+    <h4 class="text-center fw-bold mb-3">🍽️ Món đã gọi (Bàn: @TableCode)</h4>
+
+    @if (Orders == null || Orders.Count == 0)
+    {
+        <div class="text-center text-muted mt-5">
+            <i class="bi bi-emoji-frown display-6"></i>
+            <p>Chưa có món nào được gọi.</p>
+        </div>
+    }
+    else
+    {
+        <!-- Dạng danh sách (mobile) -->
+        <div class="d-block d-md-none">
+            @foreach (var order in Orders)
+            {
+                <div class="card shadow-sm mb-3 border-0">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="fw-semibold mb-0">@order.Item.Name</h6>
+                                <small class="text-muted">SL: @order.Quantity</small>
+                                <p class="text-danger fw-bold mb-1">
+                                    @(order.Item.Price* order.Quantity).ToString("N0") VNĐ
+                                </p>
+                            </div>
+                            <div>
+                                <div class="progress" style="height:8px;width:80px;">
+                                    <div class="progress-bar @(GetProgressColor(order.Status))"
+                                         style="width:@GetProgressWidth(order.Status)%">
+                                    </div>
+                                </div>
+                                <small class="d-block text-muted text-center mt-1">@order.Status</small>
+                            </div>
+                        </div>
+
+                        @if (order.Status == "Đã nhận")
+                        {
+                            <button class="btn btn-sm btn-outline-danger w-100 mt-2" @onclick="() => CancelOrder(order)">
+                                <i class="bi bi-x-circle"></i> Hủy món
+                            </button>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Dạng bảng (desktop) -->
+        <div class="d-none d-md-block">
+            <table class="table table-striped align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Món ăn</th>
+                        <th style="width:10%">Số lượng</th>
+                        <th style="width:15%">Giá</th>
+                        <th style="width:25%">Trạng thái</th>
+                        <th style="width:15%">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var order in Orders)
+                    {
+                        <tr>
+                            <td>@order.Item.Name</td>
+                            <td>@order.Quantity</td>
+                            <td>@(order.Item.Price* order.Quantity).ToString("N0") VNĐ</td>
+                            <td>
+                                <div class="progress" style="height: 15px;">
+                                    <div class="progress-bar @(GetProgressColor(order.Status))"
+                                         style="width:@GetProgressWidth(order.Status)%">
+                                        @order.Status
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                @if (order.Status == "Đã nhận")
+                                {
+                                    <button class="btn btn-sm btn-danger" @onclick="() => CancelOrder(order)">
+                                        Hủy món
+                                    </button>
+                                }
+                                else
+                                {
+                                    <span class="text-muted small">Không thể hủy</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Khu vực tổng tiền & thanh toán -->
+        <div class="fixed-bottom bg-dark text-white p-3 shadow-lg">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <strong>Tổng cộng:</strong>
+                    <span class="text-warning fw-bold">@TotalAmount.ToString("N0") VNĐ</span>
+                </div>
+                <button class="btn btn-warning text-dark fw-semibold" @onclick="CallStaffToPay">
+                    <i class="bi bi-bell-fill"></i> Gọi thanh toán
+                </button>
+            </div>
+        </div>
+    }
+
+    <div class="text-center mt-4 mb-5">
+        <button class="btn btn-outline-secondary" @onclick="GoBack">
+            ← Quay lại Thực đơn
+        </button>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string TableCode { get; set; } = string.Empty;
+
+    private List<(QND.Core.Models.MenuItem Item, int Quantity, string Status)> Orders = new();
+
+    private decimal TotalAmount => Orders.Sum(o => o.Item.Price * o.Quantity);
+
+    protected override void OnInitialized()
+    {
+        // Dữ liệu demo
+        Orders = new()
+        {
+            (new QND.Core.Models.MenuItem { Name = "Bia Hơi", Price = 150000 }, 2, "Đã nhận"),
+            (new QND.Core.Models.MenuItem { Name = "Đậu Tẩm Hành", Price = 25000 }, 1, "Đang làm"),
+            (new QND.Core.Models.MenuItem { Name = "Rau Cải Xào Tỏi", Price = 20000 }, 1, "Đã xong")
+        };
+    }
+
+    private int GetProgressWidth(string status) => status switch
+    {
+        "Đã nhận" => 33,
+        "Đang làm" => 66,
+        "Đã xong" => 100,
+        _ => 0
+    };
+
+    private string GetProgressColor(string status) => status switch
+    {
+        "Đã nhận" => "bg-secondary",
+        "Đang làm" => "bg-warning text-dark",
+        "Đã xong" => "bg-success",
+        _ => "bg-light"
+    };
+
+    private void CancelOrder((QND.Core.Models.MenuItem Item, int Quantity, string Status) order)
+    {
+        Orders.Remove(order);
+    }
+
+    private void GoBack() => NavManager.NavigateTo($"/menu/{TableCode}");
+
+    private void CallStaffToPay()
+    {
+        Console.WriteLine($"📣 Bàn {TableCode} yêu cầu thanh toán. Tổng tiền: {TotalAmount} VNĐ");
+        // Có thể hiển thị modal hoặc gửi SignalR ở đây
+    }
+}

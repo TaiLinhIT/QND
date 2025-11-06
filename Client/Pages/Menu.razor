@@ -1,99 +1,80 @@
-﻿@page "/"
-@page "/menu/{tableCode}"
-@inject HttpClient Http
+﻿@page "/menu/{tableCode}"
 @inject NavigationManager NavManager
 
 <PageTitle>Thực Đơn - Bàn @TableCode</PageTitle>
 
-<div class="container mobile-first-design">
-    <h3 class="mb-4 text-center">🍻 Thực Đơn Quán Nhậu (Bàn: @TableCode)</h3>
+<div class="container mobile-first-design pb-6 mb-6" style="padding-bottom: 100px;">
+
+    <h4 class="text-center fw-bold mb-3">🍻 Thực Đơn Quán Nhậu (Bàn: @TableCode)</h4>
 
     @if (MenuItems == null)
     {
-        <p><em>Đang tải thực đơn...</em></p>
+        <p class="text-center"><em>Đang tải thực đơn...</em></p>
     }
     else
     {
-        <div class="row">
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
             @foreach (var item in MenuItems)
             {
-                <div class="col-12 col-md-6 mb-4">
-                    <div class="card shadow-sm">
-                        <div class="card-body d-flex">
-                            <div>
-                                <img src="@($"/images/products/{item.ImageUrl}")" alt="Alternate Text" />
-                                <div>
-                                    <h5 class="card-title">@item.Name</h5>
-                                    <p class="card-text text-danger fw-bold">@item.Price.ToString("N0") VNĐ</p>
-                                    <p class="card-text small text-muted">@item.Description</p>
-
-                                </div>
-
-                            </div>
-                            <button class="btn btn-sm btn-success" @onclick="() => AddToCart(item)">
-                                <span class="oi oi-plus"></span> Thêm vào Giỏ nhé tôi bạn ơi
-                            </button>
-                        </div>
-                    </div>
+                <div class="col">
+                    <Client.Components.MenuCard Item="item" AddToCart="OnAddToCart" />
                 </div>
             }
         </div>
 
-        <div class="fixed-bottom p-3 bg-dark text-white shadow-lg">
-            Giỏ hàng: **@CartItems.Count** món | Tổng tiền: **@TotalAmount.ToString("N0") VNĐ**
-            <button class="btn btn-warning float-end" @onclick="Checkout">Xem Giỏ hàng nhé bạn oi</button>
+
+        <!-- Thanh cố định cuối màn hình -->
+        <div class="cart-bar fixed-bottom bg-dark text-white shadow-lg p-2 px-3">
+            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2">
+                <div class="text-center text-sm-start">
+                    <small>Giỏ hàng: <b>@CartItems.Count</b> món</small> <br />
+                    <small>Tổng tiền (tạm tính): <b>@TotalAmount.ToString("N0") VNĐ</b></small>
+                </div>
+                <div class="d-flex flex-column flex-sm-row gap-2 w-100 w-sm-auto">
+                    <button class="btn btn-warning fw-bold w-100 w-sm-auto" @onclick="Checkout">
+                        🍽️ Xem món đã gọi
+                    </button>
+                    <button class="btn btn-success fw-bold w-100 w-sm-auto" @onclick="PayNow">
+                        💰 Gọi nhân viên thanh toán (@TotalAmount.ToString("N0") VNĐ)
+                    </button>
+                </div>
+            </div>
         </div>
     }
 </div>
 
-
 @code {
     [Parameter]
-    public string TableCode { get; set; } = string.Empty; // Nhận mã bàn từ URL
+    public string TableCode { get; set; } = string.Empty;
 
     private List<QND.Core.Models.MenuItem>? MenuItems;
-    private List<QND.Core.Models.MenuItem> CartItems = new List<QND.Core.Models.MenuItem>();
-    private decimal TotalAmount => CartItems.Sum(i => i.Price);
+    private List<(QND.Core.Models.MenuItem Item, int Quantity)> CartItems = new();
 
-    // Khai báo API URL
-    private string ApiBaseUrl = "https://localhost:7001";
+    private decimal TotalAmount => CartItems.Sum(i => i.Item.Price * i.Quantity);
 
     protected override async Task OnInitializedAsync()
     {
-        // 1. Kết nối SignalR (sử dụng dịch vụ đã tạo)
-        // Cần inject SignalRService và gọi StartConnection(TableCode)
-
-        // 2. Tải Menu từ API
-        try
+        MenuItems = new List<QND.Core.Models.MenuItem>
         {
-            // Tạm thời tạo MenuItems giả lập vì API chưa có endpoint
-            MenuItems = new List<QND.Core.Models.MenuItem>
-            {
-                new QND.Core.Models.MenuItem { Id = 1, Name = "Bò Tái Chanh", Price = 150000, Description = "Bò tươi trộn chanh và rau thơm.", ImageUrl="ca-bia-hoi.jfif" },
-                new QND.Core.Models.MenuItem { Id = 2, Name = "Lẩu Thái Hải Sản", Price = 250000, Description = "Cay chua, nhiều hải sản tươi.", ImageUrl="dau-tam-hanh.jfif" },
-                new QND.Core.Models.MenuItem { Id = 3, Name = "Bia Hà Nội (Chai)", Price = 20000, Description = "Bia truyền thống, mát lạnh.", ImageUrl="rau-cai-xao.jfif" }
-            };
-
-            // Code thực tế khi API sẵn sàng:
-            // MenuItems = await Http.GetFromJsonAsync<List<QND.Core.Models.MenuItem>>($"{ApiBaseUrl}/api/menu");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Lỗi tải menu: {ex.Message}");
-            // Xử lý lỗi
-        }
+            new() { Id = 1, Name = "Bia Hơi", Price = 150000, Description = "Bia mát lạnh.", ImageUrl="ca-bia-hoi.jfif" },
+            new() { Id = 2, Name = "Đậu Tẩm Hành", Price = 250000, Description = "Món nhậu truyền thống.", ImageUrl="dau-tam-hanh.jfif" },
+            new() { Id = 3, Name = "Rau Cải Xào Tỏi", Price = 20000, Description = "Rau tươi giòn ngon.", ImageUrl="rau-cai-xao.jfif" }
+        };
     }
 
-    private void AddToCart(QND.Core.Models.MenuItem item)
+    private void OnAddToCart((QND.Core.Models.MenuItem Item, int Quantity) data)
     {
-        CartItems.Add(item);
-        // Sau này, bạn sẽ cần nhóm các món trùng nhau và chỉ tăng Quantity
+        CartItems.Add(data);
     }
 
     private void Checkout()
     {
-        // Điều hướng sang trang Giỏ hàng hoặc gọi phương thức PlaceOrder
-        Console.WriteLine("Tiến hành kiểm tra giỏ hàng...");
-        // NavManager.NavigateTo($"/cart/{TableCode}");
+        NavManager.NavigateTo($"/order/{TableCode}");
+    }
+
+    private void PayNow()
+    {
+        // Bạn có thể thêm logic gọi API gọi nhân viên tại đây
+        Console.WriteLine($"Gọi nhân viên thanh toán: {TotalAmount}");
     }
 }

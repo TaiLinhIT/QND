@@ -122,3 +122,10 @@ a, .btn-link {
 code {
     color: #c02d76;
 }
+.product-image {
+    height: 180px;
+    object-fit: cover;
+    border-top-left-radius: .5rem;
+    border-top-left-radius: .5rem;
+    border-top-right-radius: .5rem;
+}

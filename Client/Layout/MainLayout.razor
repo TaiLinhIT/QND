@@ -1,15 +1,16 @@
 ﻿@inherits LayoutComponentBase
 
-<div class="page">
-    @* Xóa hoặc Comment thẻ <div class="sidebar"> chứa NavMenu *@
+<div class="container py-3">
+    <header class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
+        <h4 class="text-primary">🛒 My Shop</h4>
+        <a href="https://learn.microsoft.com/aspnet/core/" target="_blank" class="text-decoration-none">About</a>
+    </header>
 
     <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-        </div>
-
-        <article class="content px-4">
-            @Body
-        </article>
+        @Body
     </main>
+
+    <footer class="text-center text-muted small mt-4 border-top pt-2">
+        &copy; 2025 - My Shop
+    </footer>
 </div>

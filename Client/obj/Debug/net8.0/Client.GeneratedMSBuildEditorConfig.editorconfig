@@ -28,8 +28,16 @@ build_property.EnableCodeStyleSeverity =
 build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
+[D:/Linh/Project/QND/Client/Components/MenuCard.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xNZW51Q2FyZC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
 [D:/Linh/Project/QND/Client/Pages/Menu.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTWVudS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Linh/Project/QND/Client/Pages/Order.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcT3JkZXIucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/Linh/Project/QND/Client/Shared/MenuItemCard.razor]
